@@ -1,0 +1,137 @@
+CREATE TABLE computers (
+	computerID int(11) NOT NULL AUTO_INCREMENT,
+	computer_name varchar(255),
+	PRIMARY KEY (computerID)
+);
+
+CREATE TABLE users (
+	userID int(11) NOT NULL AUTO_INCREMENT,
+	name varchar(255) NOT NULL,
+	account_type varchar(255),
+	disabled boolean,
+	install_date varchar(255),
+	local_account boolean,
+	password_expires boolean,
+	password_required boolean,
+	computerID int(11) NOT NULL,
+	PRIMARY KEY (userID),
+	CONSTRAINT fk_users_1 FOREIGN KEY (computerID) REFERENCES computers (computerID)
+);
+
+CREATE TABLE shares (
+	shareID int(11) NOT NULL AUTO_INCREMENT,
+	name varchar(255) NOT NULL,
+	share_path varchar(1024),
+	description varchar(255),
+	status varchar(255),
+	computerID int(11) NOT NULL,
+	PRIMARY KEY (shareID),
+	CONSTRAINT fk_shares_1 FOREIGN KEY (computerID) REFERENCES computers (computerID)
+);
+
+CREATE TABLE processes (
+	processID int(11) NOT NULL AUTO_INCREMENT,
+	name varchar(255) NOT NULL,
+	exec_path varchar(255),
+	command_line varchar(1024),
+	creation_date varchar(255),
+	sha1 varchar(40),
+	sha256 varchar (64),
+	sha512 varchar(128),
+	computerID int(11) NOT NULL,
+	CONSTRAINT fk_processes_1 FOREIGN KEY (computerID) REFERENCES computers (computerID)
+);
+
+CREATE TABLE child_processes (
+	childID int(11) NOT NULL AUTO_INCREMENT,
+	processID int(11) NOT NULL,
+	computerID int(11) NOT NULL,
+	PRIMARY KEY (childID),
+	CONSTRAINT fk_child_processes_1 FOREIGN KEY (processID) REFERENCES processes (processID)
+	CONSTRAINT fk_child_processes_2 FOREIGN KEY (computerID) REFERENCES computers (computerID)
+);
+
+CREATE TABLE services (
+	serviceID int(11) NOT NULL AUTO_INCREMENT,
+	name varchar(255) NOT NULL,
+	description varchar(2048),
+	command_line varchar(1024),
+	exec_path varchar(1024),
+	processID int(11) NOT NULL,
+	started boolean,
+	delayed_auto_start boolean,
+	sha1 varchar(40),
+	sha256 varchar(64),
+	sha512 varchar(128),
+	computerID int(11) NOT NULL,
+	PRIMARY KEY (serviceID),
+	CONSTRAINT fk_services_1 FOREIGN KEY (processID) REFERENCES processes (processID),
+	CONSTRAINT fk_services_2 FOREIGN KEY (computerID) REFERENCES computer (computerID)
+);
+
+CREATE TABLE netstat_states (
+	netstat_stateID int(11) NOT NULL AUTO_INCREMENT,
+	net_state varchar(100) NOT NULL,
+	description varchar(1024)
+);
+
+CREATE TABLE netstat (
+	netID int(11) NOT NULL AUTO_INCREMENT,
+	protocol varchar(3) NOT NULL,
+	local_address varchar(255),
+	local_port int(5),
+	remote_address varchar(255),
+	remote_port int(5),
+	netstat_stateID int(11) NOT NULL,
+	processID int(11) NOT NULL,
+	computerID int(11) NOT NULL,
+	PRIMARY KEY (netID),
+	CONSTRAINT fk_netstat_1 FOREIGN KEY (netstat_stateID) REFERENCES netstat_states (netstat_stateID),
+	CONSTRAINT fk_netstat_2 FOREIGN KEY (processID) REFERENCES processes (processID),
+	CONSTRAINT fk_netstat_3 FOREIGN KEY (computerID) REFERENCES computers (computerID)
+);
+
+CREATE TABLE groups (
+	groupID int(11) NOT NULL AUTO_INCREMENT,
+	name varchar(255) NOT NULL,
+	description varchar(1024),
+	local_account boolean,
+	install_date varchar(255),
+	sid varchar(255),
+	status varchar(255),
+	computerID int(11) NOT NULL,
+	PRIMARY KEY (groupID),
+	CONSTRAINT fk_groups_1 FOREIGN KEY (computerID) REFERENCES computers (computerID)
+);
+
+CREATE TABLE group_membership (
+	group_membershipID int(11) NOT NULL AUTO_INCREMENT,
+	groupID int(11) NOT NULL,
+	userID int(11) NOT NULL,
+	group_type varchar(255),
+	computerID int(11) NOT NULL,
+	PRIMARY KEY (group_membershipID),
+	CONSTRAINT fk_group_membership_1 FOREIGN KEY (groupID) REFERENCES groups (groupID),
+	CONSTRAINT fk_group_membership_2 FOREIGN KEY (userID) REFERENCES users (userID),
+	CONSTRAINT fk_group_membership_3 FOREIGN KEY (computerID) REFERENCES computers (computerID)
+);
+
+CREATE TABLE autoruns (
+	autorunID int(11) NOT NULL AUTO_INCREMENT,
+	entry_location varchar(1024),
+	entry varchar(255),
+	enabled varchar(255),
+	category varchar(255),
+	profile varchar(255),
+	description varchar(1024),
+	company varchar(255),
+	image_path varchar(255),
+	version varchar(255),
+	launch_string varchar(1024),
+	sha1 varchar(40),
+	sha256 varchar(64),
+	sha512 varchar(128),
+	computerID int(11) NOT NULL,
+	PRIMARY KEY (autorunID),
+	CONSTRAINT fk_autoruns_1 FOREIGN KEY (computerID) REFERENCES computers (computerID)
+);
