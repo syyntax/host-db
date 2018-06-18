@@ -1,6 +1,6 @@
 CREATE TABLE computers (
 	computerID int(11) NOT NULL AUTO_INCREMENT,
-	computer_name varchar(255),
+	name varchar(255),
 	PRIMARY KEY (computerID)
 );
 
@@ -31,14 +31,16 @@ CREATE TABLE shares (
 
 CREATE TABLE processes (
 	processID int(11) NOT NULL AUTO_INCREMENT,
+    process_id int(11) NOT NULL,
 	name varchar(255) NOT NULL,
 	exec_path varchar(255),
-	command_line varchar(1024),
+	command_line varchar(2048),
 	creation_date varchar(255),
 	sha1 varchar(40),
 	sha256 varchar (64),
 	sha512 varchar(128),
 	computerID int(11) NOT NULL,
+    PRIMARY KEY (processID),
 	CONSTRAINT fk_processes_1 FOREIGN KEY (computerID) REFERENCES computers (computerID)
 );
 
@@ -47,7 +49,7 @@ CREATE TABLE child_processes (
 	processID int(11) NOT NULL,
 	computerID int(11) NOT NULL,
 	PRIMARY KEY (childID),
-	CONSTRAINT fk_child_processes_1 FOREIGN KEY (processID) REFERENCES processes (processID)
+	CONSTRAINT fk_child_processes_1 FOREIGN KEY (processID) REFERENCES processes (processID),
 	CONSTRAINT fk_child_processes_2 FOREIGN KEY (computerID) REFERENCES computers (computerID)
 );
 
@@ -55,7 +57,7 @@ CREATE TABLE services (
 	serviceID int(11) NOT NULL AUTO_INCREMENT,
 	name varchar(255) NOT NULL,
 	description varchar(2048),
-	command_line varchar(1024),
+	command_line varchar(2048),
 	exec_path varchar(1024),
 	processID int(11) NOT NULL,
 	started boolean,
@@ -66,13 +68,14 @@ CREATE TABLE services (
 	computerID int(11) NOT NULL,
 	PRIMARY KEY (serviceID),
 	CONSTRAINT fk_services_1 FOREIGN KEY (processID) REFERENCES processes (processID),
-	CONSTRAINT fk_services_2 FOREIGN KEY (computerID) REFERENCES computer (computerID)
+	CONSTRAINT fk_services_2 FOREIGN KEY (computerID) REFERENCES computers (computerID)
 );
 
 CREATE TABLE netstat_states (
 	netstat_stateID int(11) NOT NULL AUTO_INCREMENT,
-	net_state varchar(100) NOT NULL,
-	description varchar(1024)
+	name varchar(100) NOT NULL,
+	description varchar(1024),
+    PRIMARY KEY (netstat_stateID)
 );
 
 CREATE TABLE netstat (
@@ -135,3 +138,41 @@ CREATE TABLE autoruns (
 	PRIMARY KEY (autorunID),
 	CONSTRAINT fk_autoruns_1 FOREIGN KEY (computerID) REFERENCES computers (computerID)
 );
+
+CREATE TABLE adapters (
+    adapterID int(11) NOT NULL AUTO_INCREMENT,
+    name varchar(255) NOT NULL,
+    description varchar(1024),
+    ipv4 varchar(15),
+    subnet_mask varchar(15),
+    ipv6 varchar(100),
+    ipv6_prefix varchar(100),
+    mac_address varchar(17),
+    gateway varchar(255),
+    dhcp_enabled boolean,
+    dhcp_server varchar(100),
+    dns_server varchar(100),
+    computerID int(11) NOT NULL,
+    PRIMARY KEY (adapterID),
+    CONSTRAINT fk_adapters_1 FOREIGN KEY (computerID) REFERENCES computers (computerID)
+);
+
+CREATE TABLE dir_walk (
+    pathID int(11) NOT NULL AUTO_INCREMENT,
+    filepath varchar(1024) NOT NULL,
+    computerID int(11),
+    PRIMARY KEY (pathID),
+    CONSTRAINT fk_dirwalk_1 FOREIGN KEY (computerID) REFERENCES computers (computerID)
+);
+
+CREATE TABLE usb_keys (
+    usbID int(11) NOT NULL AUTO_INCREMENT,
+    name varchar(255),
+    serial_num varchar(255),
+    description varchar(255),
+    service varchar(255),
+    computerID int(11),
+    PRIMARY KEY (usbID),
+    CONSTRAINT fk_usbkeys_1 FOREIGN KEY (computerID) REFERENCES computers (computerID)
+);
+
